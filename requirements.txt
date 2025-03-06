@@ -1,0 +1,6 @@
+# Basic R version requirement (example version)
+R (>= 4.0.0)
+
+# R packages needed
+ggplot2
+readr
