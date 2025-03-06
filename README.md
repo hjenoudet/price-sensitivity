@@ -2,12 +2,12 @@
 Analyze booking behavior in relation to price per night and user demographics. This repository includes an R script and a dataset to explore how price sensitivity correlates with nights booked, user income, and region through regression models.
 
 ## Project Structure
-
+```
 ├── price-sensitivity-data.Rdata      # Dataset
 ├── price-sensitivity-script.R        # R script with all analysis code
 ├── requirements.txt                  # R packages needed for this project
 └── README.md                         # Project documentation
-
+```
 
 ## How to Run
 1. Clone or download this repository.
