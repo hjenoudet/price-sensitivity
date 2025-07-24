@@ -4,3 +4,5 @@ R (>= 4.0.0)
 # R packages needed
 ggplot2
 readr
+glmnet
+magrittr
