@@ -266,3 +266,72 @@ Table9 <- lm(
     Expedia$Hawaii + Expedia$LasVegas + Expedia$Miami + Expedia$DC
 )
 summary(Table9)
+
+########################################
+# Added July 2025 - Regularization (Lasso) and confidence interval (Monte-Carlo simulation) for Table8 and Table9.
+# Prep: load packages and data 
+library(glmnet)
+library(magrittr)
+
+# Build model matrix once (no intercept column—glmnet adds its own)
+X <- model.matrix(
+  ~ INC1 + INC2 + INC3 + INC4 +
+    TreatInc1 + TreatInc2 + TreatInc3 + TreatInc4 +
+    TreatRegH + TreatRegLV + TreatRegM + TreatRegDC +
+    Hawaii + LasVegas + Miami + DC,
+  data = Expedia
+)[, -1]  # drop the automatic intercept column so glmnet handles it
+
+y_booked <- Expedia$`Booked?`
+y_nights <- Expedia$Nights
+
+# Fit cross‐validated lasso 
+set.seed(2025)  # reproducibility
+cv_booked <- cv.glmnet(X, y_booked, alpha = 1, family = "gaussian")
+cv_nights <- cv.glmnet(X, y_nights, alpha = 1, family = "gaussian")
+
+# pick the lambda with minimum CV error
+lambda_b <- cv_booked$lambda.min
+lambda_n <- cv_nights$lambda.min
+
+# extract coefficients (sparse) at that λ
+coef(cv_booked, s = lambda_b)
+coef(cv_nights, s = lambda_n)
+
+# Estimate residual σ for parametric simulation 
+sigma_b <- sqrt(cv_booked$cvm[cv_booked$lambda == lambda_b])
+sigma_n <- sqrt(cv_nights$cvm[cv_nights$lambda == lambda_n])
+
+# Monte Carlo sim to get 95% CI on each coef 
+n_sims <- 10000
+coefs_b <- matrix(0, n_sims, ncol(X) + 1) 
+coefs_n <- matrix(0, n_sims, ncol(X) + 1)
+colnames(coefs_b) <- colnames(coefs_n) <- rownames(coef(cv_booked))
+
+set.seed(2025)
+for(i in seq_len(n_sims)) {
+  # simulate new y* = Xβ + ε
+  eps_b <- rnorm(nrow(X), 0, sigma_b)
+  yb_sim <- predict(cv_booked, X, s = lambda_b) + eps_b
+  
+  eps_n <- rnorm(nrow(X), 0, sigma_n)
+  yn_sim <- predict(cv_nights, X, s = lambda_n) + eps_n
+  
+  # refit lasso with same λ (no CV inside loop)
+  fitb <- glmnet(X, yb_sim, alpha = 1, lambda = lambda_b)
+  fitn <- glmnet(X, yn_sim, alpha = 1, lambda = lambda_n)
+  
+  coefs_b[i, ] <- as.vector(coef(fitb))
+  coefs_n[i, ] <- as.vector(coef(fitn))
+}
+
+# Summarize: empirical 95% CIs 
+ci_booked <- apply(coefs_b, 2, quantile, probs = c(0.025, 0.975))
+ci_nights <- apply(coefs_n, 2, quantile, probs = c(0.025, 0.975))
+
+# Printing the answers
+print("95% CI for Booked? model coefficients:")
+print(t(ci_booked))
+
+print("95% CI for Nights model coefficients:")
+print(t(ci_nights))
