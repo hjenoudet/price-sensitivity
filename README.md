@@ -17,8 +17,8 @@ Analyze booking behavior in relation to price per night and user demographics. T
 
 ## Project Details
 - **Data**: The dataset (`price-sensitivity-data.Rdata`) contains information on hotel bookings, including price per night, region, user income, and whether the hotel was booked.
-- **Analysis**: The R script performs exploratory data analysis (EDA), generates plots using `ggplot2`, and fits multiple linear models to investigate price-sensitivity.
-- **Outputs**: Summaries, correlation checks, regression models, and plots are produced to understand the impact of price, region, and user income on booking behavior and nights booked.
+- **Analysis**: The R script performs exploratory data analysis (EDA), generates plots using `ggplot2`, and fits multiple linear models to investigate price-sensitivity. Lasso Regularization and Monte-Carlo Simulation were performed on our last two models. 
+- **Outputs**: Summaries, tables, correlation checks, confidence intervals, regression models, and plots are produced to understand the impact of price, region, and user income on booking behavior and nights booked.
 
 ## Contributing
 If you’d like to contribute or report any issues, please open a Pull Request or file an Issue on this repository.
