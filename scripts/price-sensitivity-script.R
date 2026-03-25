@@ -8,7 +8,7 @@ library(ggplot2)
 ## Load the data
 ## The data frame is called Expedia.
 ########################################
-load("price-sensitivity-data.Rdata")
+load("data/price-sensitivity-data.Rdata")
 Table1 <- summary(Expedia)
 Table1
 
